@@ -105,8 +105,8 @@ function checkDocketNumbersInCleanedData(docketNumbers, cleanedData) {
   return { misplaced, missing, repairedData };
 }
 
-const sendToFilemaker = (data) => {
-  const scriptName = "json * callback";
+const sendToFilemaker = (data, script) => {
+  const scriptName = script;
   const scriptParameter = JSON.stringify({ data });
   // Check if FileMaker object exists and call the script
   if (typeof window.FileMaker !== 'undefined') {
@@ -118,7 +118,7 @@ const sendToFilemaker = (data) => {
 
 window.loadApp = (json) => {
   const data = JSON.parse(json);
-  console.log({ data });
+  console.log("Clean Data called...");
 
   const rawData = data.rawData;
   const cleanedData = data.cleanedData;
@@ -129,10 +129,11 @@ window.loadApp = (json) => {
   // Step 2: Check each docket number in the cleanedData for correct placement
   const result = checkDocketNumbersInCleanedData(docketNumbers, cleanedData);
 
-  console.log(result); // For debugging
+  const script = "Clean Data * dataCheck * callback"
+  console.log(script);
 
   // Step 3: Send the result to FileMaker
-  sendToFilemaker(result);
+  sendToFilemaker(result,script);
 }
 
 window.convertToXLSX = (csvString) => {
@@ -145,7 +146,7 @@ window.convertToXLSX = (csvString) => {
     // Generate XLSX data from the workbook
     const xlsxData = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' });
 
-    sendToFilemaker(xlsxData);
+    sendToFilemaker(xlsxData,"Clean Data * exportToXLSX * callback");
 
   } catch (error) {
     console.error('Error occurred during XLSX conversion:', error.message);
